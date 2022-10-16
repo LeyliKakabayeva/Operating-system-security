@@ -1,0 +1,70 @@
+[cringe@localhost test]$ ll -1R
+drw-rw-r--. 2 cringe cringe 22 окт 17 01:37 dir
+-r--r-----. 1 root   cringe  5 окт 17 01:33 file
+----rw-rw-. 1 cringe cringe  0 окт 17 01:43 file1
+-rw-rw-rw-. 1 cringe cringe  0 окт 17 01:45 file2
+-rw-rw----. 1 cringe cringe  0 окт 17 01:44 file3
+-rw-------. 1 cringe cringe  0 окт 17 01:45 file4
+
+./dir:
+ls: невозможно получить доступ к './dir/new_file': Отказано в доступе
+итого 0
+-????????? ? ? ? ?            ? new_file
+
+[cringe@localhost test]$ history
+  1  mkdir test
+  2  cd test
+  3  touch file
+  4  ls -l
+  5  ls -l file
+  6  man chmod
+  7  chmod 000 file
+  8  echo "test" > file
+  9  cat file
+ 10  chmod 200 file
+ 11  ll
+ 12  echo "test" > file
+ 13  cat file
+ 14  chmod 240 file
+ 15  ll
+ 16  chmod 640 file
+ 17  ll
+ 18  cat file
+ 19  mkdir dir
+ 20  cd dir
+ 21  touch new_file
+ 22  echo "file 2" > new_file
+ 23  ls
+ 24  cd ..
+ 25  chmod 664 dir
+ 26  ll
+ 27  cat dir/new_file 
+ 28  rm dir/new_file 
+ 29  chown root file
+ 30  umask 200
+ 31  umask 600
+ 32  ll
+ 33  touch file1
+ 34  ll file1
+ 35  umask 006
+ 36  touch file3
+ 37  ll file3
+ 38  umask 066
+ 39  touch file4
+ 40  ll file4
+ 41  umask 000
+ 42  touch file2
+ 43  ll file2
+ 44  ls -1R
+ 45  history
+ 
+ [cringe@localhost test]$ history
+  1  su
+  2  history > commandline_history.txt
+  3  su
+  4  cat file
+  5  su
+  6  cat file
+  7  ls -IR
+  8  ls -1R
+  9  history
