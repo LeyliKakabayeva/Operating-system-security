@@ -19,7 +19,7 @@ function SelectChangeMode()
 				break
 			;;
 			*)
-				echo -e "Введите число из списка!\n"
+				echo -e "Введите число из списка!" >&2
 			;;
 		esac
 	done
@@ -28,7 +28,7 @@ function SelectChangeMode()
 function ChangeParameters
 {
 	echo -e "\nВведите номер системы из списка\n"
-	readarray -t systems < <(df -Th -x procfs -x tmpfs -x devtmpfs -x sysfs | tail -n +6 | cut -d ' ' -f 1)
+	readarray -t systems < <(df -x proc -x sys -x tmpfs -x devtmpfs --output=target | tail -n +2)
 	systems+=(Справка Назад)
 	select system in "${systems[@]}"; do
 		case $system in
@@ -36,7 +36,7 @@ function ChangeParameters
 			Справка) echo "Введите номер системы из списка";;
 			*)
 				if [[ -z $system ]]; then
-					echo Введите номер из списка
+					echo "Введите номер из списка!" >&2
 				else
 					SelectChangeMode $system
 				fi
@@ -48,7 +48,7 @@ function ChangeParameters
 function ShowParameters
 {
 	echo -e "\nВведите номер системы из списка\n"
-	readarray -t systems < <(df -Th -x procfs -x tmpfs -x devtmpfs -x sysfs | tail -n +6 | cut -d ' ' -f 1)
+	readarray -t systems < <(df -x proc -x sys -x tmpfs -x devtmpfs --output=target | tail -n +2)
 	systems+=(Справка Назад)
 	select system in "${systems[@]}"; do
 		case $system in
@@ -56,7 +56,7 @@ function ShowParameters
 			Справка) echo "Введите номер системы из списка";;
 			*)
 				if [[ -z $system ]]; then
-					echo Введите номер из списка
+					echo "Введите номер из списка!" >&2
 				else
 					mount | grep $(df --output=target $system | tail -n +2)
 				fi
@@ -68,7 +68,7 @@ function ShowParameters
 function ShowInfo
 {
 	echo -e "\nВведите номер системы из списка\n"
-	readarray -t systems < <(df -Th -x procfs -x tmpfs -x devtmpfs -x sysfs | tail -n +6 | cut -d ' ' -f 1)
+	readarray -t systems < <(df -t ext2 -t ext3 -t ext4 -t extcow --output=source,target | tail -n +2 | sed "s/ \+/ on /g")
 	systems+=(Справка Назад)
 	select system in "${systems[@]}"; do
 		case $system in
@@ -76,7 +76,7 @@ function ShowInfo
 			Справка) echo "Введите номер системы из списка";;
 			*)
 				if [[ -z $system ]]; then
-					echo Введите номер из списка
+					echo "Введите номер из списка!" >&2
 				else
 					tune2fs -l $(echo "$system" | cut -d ' ' -f 1)
 				fi
@@ -93,7 +93,7 @@ function MountSystem
 		read -p "> " dir
 		if [[ -d $dir ]] && find $dir -maxdepth 1 | wc
 		then
-			echo Каталог должен быть пустым!
+			echo "Каталог должен быть пустым!" >&2
 			continue
 		else
 			mkdir dir
@@ -124,7 +124,7 @@ function UnmountSystem
 		read -p "> " answer
 		case "$answer" in
 			1)
-				readarray -t systems < <(df -Th -x procfs -x tmpfs -x devtmpfs -x sysfs | tail -n +6 | cut -d ' ' -f 1)
+				readarray -t systems < <(df -x proc -x sys -x tmpfs -x devtmpfs --output=target | tail -n +2)
 				systems+=(Справка Назад)
 				select system in "${systems[@]}"; do
 					case $system in
@@ -132,7 +132,7 @@ function UnmountSystem
 						Справка) echo "Введите номер системы из списка";;
 						*)
 							if [[ -z $system ]]; then
-								echo Введите номер из списка
+								echo "Введите номер из списка!" >&2
 							else
 								unmount $system
 								break
@@ -161,9 +161,14 @@ then
 	exit
 fi
 
+if [ "$EUID" -ne 0 ]; then
+	echo "Запустите программу с правами администратора" >&2
+	exit
+fi
+
 if [[ "$1" != "" ]];
 then
-	echo "usage: ./FileSystemsManagement.sh [--help]" >&2
+	echo "usage: sudo ./FileSystemsManagement.sh [--help]" >&2
 	exit
 fi
 
@@ -181,7 +186,7 @@ do
 	read -p "> " option
 	case "$option" in
 		1)
-			df -Th -x tmpfs -x devtmpfs
+			df -x proc -x sys -x tmpfs -x devtmpfs --output=source,fstype,target
 		;;
 		2)
 			MountSystem
@@ -205,6 +210,6 @@ do
 			break
 		;;
 		*)
-			echo -e "Введите число из списка!\n"
+			echo -e "Введите число из списка!\n" >&2
 	esac
 done
