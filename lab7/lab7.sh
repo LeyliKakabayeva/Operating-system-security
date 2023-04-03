@@ -1,3 +1,4 @@
+#!/bin/bash
 function Print
 {
     if [ $(wc -l <<< "$1") -lt 30 ]; then
