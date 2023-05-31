@@ -1,5 +1,9 @@
 #!/bin/bash
 
+err() {
+  echo "[$(date +'%Y-%m-%dT%H:%M:%S')]: $*" >&2
+}
+
 function check() 
 {
 	if [ $1 -ne 0 ]; then
